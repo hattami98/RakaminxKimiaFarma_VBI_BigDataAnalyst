@@ -1,0 +1,26 @@
+CREATE TABLE `noted-field-423114-a9.kimia_farma.kf_analysis` AS (
+SELECT 
+  `ft`.transaction_id as transaction_id, `ft`.date as date, `kc`.branch_id as branch_id, `kc`.branch_name as branch_name, `kc`.kota as kota, `kc`.provinsi as provinsi, `kc`.rating as rating_cabang, `ft`.customer_name as customer_name, `ft`.product_id as product_id, `p`.product_category as product_category, `p`.product_name as product_name, `ft`.price as actual_price, `ft`.discount_percentage as discount_percentage, 
+  CASE
+    WHEN `ft`.price <= 50000 THEN 0.1
+    WHEN `ft`.price > 50000 AND `ft`.price <= 100000 THEN 0.15
+    WHEN `ft`.price > 100000 AND `ft`.price <= 300000 THEN 0.2
+    WHEN `ft`.price > 300000 AND`ft`.price <= 500000 THEN 0.25
+    WHEN `ft`.price > 500000 THEN 0.3
+  END AS persentase_gross_laba,
+  (`ft`.price * (1 - `ft`.discount_percentage)) AS nett_sales,
+  (`ft`.price * ((
+    CASE
+      WHEN `ft`.price <= 50000 THEN 0.1
+      WHEN `ft`.price > 50000 AND `ft`.price <= 100000 THEN 0.15
+      WHEN `ft`.price > 100000 AND `ft`.price <= 300000 THEN 0.2
+      WHEN `ft`.price > 300000 AND`ft`.price <= 500000 THEN 0.25
+      WHEN `ft`.price > 500000 THEN 0.3
+    END) - `ft`.discount_percentage)) AS nett_profit,
+    `ft`.rating as rating_transaksi
+FROM `noted-field-423114-a9.kimia_farma.kf_final_transaction` AS `ft`
+INNER JOIN `noted-field-423114-a9.kimia_farma.kf_kantor_cabang` AS `kc`
+ON `ft`.branch_id = `kc`.branch_id
+INNER JOIN `noted-field-423114-a9.kimia_farma.kf_product` AS `p`
+ON  `ft`.product_id = `p`.product_id
+);
